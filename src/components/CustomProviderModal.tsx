@@ -8,7 +8,7 @@ interface Props {
   onClose: () => void
 }
 
-const FORMATS: ProviderFormat[] = ['openai', 'anthropic', 'gemini', 'cohere', 'openrouter']
+const FORMATS: ProviderFormat[] = ['openai', 'anthropic', 'gemini', 'cohere', 'openrouter', 'generic']
 
 export const CustomProviderModal: React.FC<Props> = ({ open, onClose }) => {
   const { t, addCustomProvider } = useApp()
@@ -18,7 +18,7 @@ export const CustomProviderModal: React.FC<Props> = ({ open, onClose }) => {
   const [modelsPath, setModelsPath] = useState('/v1/models')
   const [chatPath, setChatPath] = useState('/v1/chat/completions')
   const [authHeader, setAuthHeader] = useState('Authorization')
-  const [authType, setAuthType] = useState<'bearer' | 'key'>('bearer')
+  const [authType, setAuthType] = useState<'bearer' | 'key' | 'custom'>('bearer')
 
   if (!open) return null
 
@@ -78,9 +78,10 @@ export const CustomProviderModal: React.FC<Props> = ({ open, onClose }) => {
             </div>
             <div>
               <label className="block text-sm font-medium mb-1">Auth type</label>
-              <select value={authType} onChange={(e) => setAuthType(e.target.value as 'bearer' | 'key')} className={inputCls}>
+              <select value={authType} onChange={(e) => setAuthType(e.target.value as 'bearer' | 'key' | 'custom')} className={inputCls}>
                 <option value="bearer">Bearer</option>
                 <option value="key">API key header</option>
+                <option value="custom">Custom</option>
               </select>
             </div>
           </div>

@@ -369,6 +369,19 @@ export const PROVIDERS: Provider[] = [
     docsUrl: 'https://dashscope.console.aliyun.com',
     requiresRegion: 'cn',
   },
+  {
+    id: 'freellm',
+    name: 'FreeLLM API',
+    icon: 'freellm',
+    color: '#6366F1',
+    baseUrl: 'http://localhost:3001',
+    format: 'openai',
+    modelsPath: '/v1/models',
+    chatPath: '/v1/chat/completions',
+    auth: { header: 'Authorization', type: 'bearer' },
+    freeModels: [],
+    docsUrl: 'https://freellmapi.co',
+  },
 ]
 
 export const getBuiltInProviderById = (id: string): Provider | undefined =>

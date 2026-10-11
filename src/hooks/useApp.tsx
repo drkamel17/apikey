@@ -38,7 +38,7 @@ interface AppState {
   setSearchQuery: (q: string) => void
   allProviders: Provider[]
   refreshProviders: () => void
-  addCustomProvider: (data: Omit<Provider, 'id' | 'isCustom' | 'freeModels' | 'docsUrl'> & { docsUrl?: string }) => Provider | null
+  addCustomProvider: (data: Omit<Provider, 'id' | 'isCustom' | 'freeModels' | 'docsUrl'> & { docsUrl?: string, auth?: { header: string; type: 'bearer' | 'key' | 'custom'; version?: string } }) => Provider | null
   deleteCustomProvider: (id: string) => void
   // local-folder storage
   ready: boolean
@@ -265,7 +265,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     showToast(t('toast.dataCleared'), 'success')
   }
 
-  const addCustomProvider = (data: Omit<Provider, 'id' | 'isCustom' | 'freeModels' | 'docsUrl'> & { docsUrl?: string }) => {
+  const addCustomProvider = (data: Omit<Provider, 'id' | 'isCustom' | 'freeModels' | 'docsUrl'> & { docsUrl?: string, auth?: { header: string; type: 'bearer' | 'key' | 'custom'; version?: string } }) => {
     if (!data.name.trim()) { showToast(t('keys.nameRequired'), 'error'); return null }
     if (!data.baseUrl.trim()) { showToast(t('common.error'), 'error'); return null }
     const slug = data.name.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'custom'
@@ -274,6 +274,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       id: `custom-${slug}-${Date.now().toString(36)}`,
       name: data.name.trim(),
       baseUrl: data.baseUrl.trim().replace(/\/+$/, ''),
+      auth: data.auth ?? { header: 'Authorization', type: 'bearer' },
       freeModels: [],
       docsUrl: data.docsUrl?.trim() || '',
       isCustom: true,

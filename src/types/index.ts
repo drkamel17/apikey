@@ -21,7 +21,7 @@ export interface DiscoveredModel {
   contextWindow?: number
 }
 
-export type ProviderFormat = 'openai' | 'anthropic' | 'gemini' | 'openrouter' | 'cohere' | 'grok'
+export type ProviderFormat = 'openai' | 'anthropic' | 'gemini' | 'openrouter' | 'cohere' | 'grok' | 'generic'
 
 export interface Provider {
   id: string

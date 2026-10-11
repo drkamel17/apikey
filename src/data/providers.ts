@@ -374,7 +374,7 @@ export const PROVIDERS: Provider[] = [
     name: 'FreeLLM API',
     icon: 'freellm',
     color: '#6366F1',
-    baseUrl: 'http://localhost:3001',
+    baseUrl: 'http://127.0.0.1:31415',
     format: 'openai',
     modelsPath: '/v1/models',
     chatPath: '/v1/chat/completions',

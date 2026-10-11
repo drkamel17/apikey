@@ -117,7 +117,7 @@ export const sendChat = async (
 
   const isStream = options.onToken && canStream(provider.format)
   if (isStream && res.body) {
-    return await readStream(res, provider.format, options.onToken)
+    return await readStream(res, provider.format, options.onToken!)
   }
 
   const data = await res.json()

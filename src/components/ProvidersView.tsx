@@ -46,7 +46,7 @@ export const ProvidersView: React.FC = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {allProviders.map((provider) => {
           const keyCount = keys.filter((k) => k.providerId === provider.id).length
-          const providerModels = models[selectedKey] || []
+          const providerModels = selectedKey ? (models[selectedKey] || []) : []
           return (
             <div key={provider.id} className="bg-card border rounded-xl p-4 hover:shadow-md transition-shadow">
               <div className="flex items-start justify-between mb-3">
@@ -91,16 +91,16 @@ export const ProvidersView: React.FC = () => {
                   className="w-full px-2 py-1.5 rounded bg-background border text-xs"
                 >
                   <option value="">{t('keys.selectProvider')}</option>
-                  {keys.filter((k) => k.providerId === provider.id).map((k) => (
+                  {keys.filter((k) => k.providerId === provider.id).map((k: any) => (
                     <option key={k.id} value={k.id}>{k.name}</option>
                   ))}
                 </select>
                 <button
                   onClick={() => selectedKey && handleDiscover(selectedKey)}
-                  disabled={!selectedKey || loading[selectedKey]}
+                  disabled={!selectedKey || (selectedKey && loading[selectedKey])}
                   className="w-full px-3 py-1.5 rounded bg-primary text-primary-foreground hover:opacity-90 disabled:opacity-50 text-xs flex items-center justify-center gap-1"
                 >
-                  <RefreshCw className={`w-3 h-3 ${loading[selectedKey] ? 'animate-spin' : ''}`} />
+                  <RefreshCw className={`w-3 h-3 ${(selectedKey && loading[selectedKey]) ? 'animate-spin' : ''}`} />
                   {t('providers.refresh')}
                 </button>
               </div>
@@ -109,7 +109,7 @@ export const ProvidersView: React.FC = () => {
                 <div className="mt-3 pt-3 border-t">
                   <p className="text-xs font-medium mb-2">{t('providers.models')} ({providerModels.length})</p>
                   <div className="max-h-32 overflow-y-auto space-y-1">
-                    {providerModels.slice(0, 6).map((m) => (
+                    {providerModels.slice(0, 6).map((m: any) => (
                       <div key={m.id} className="flex items-center justify-between text-xs">
                         <span className="font-mono truncate">{m.id}</span>
                         <div className="flex items-center gap-1">

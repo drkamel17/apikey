@@ -12,7 +12,7 @@ export const PROVIDERS: Provider[] = [
     modelsPath: '/v1beta/models?key={key}',
     chatPath: '/v1beta/models/{model}:generateContent?key={key}',
     auth: { header: 'x-goog-api-key', type: 'key' },
-    freeModels: [gemini-1.5-flash, gemini-1.5-pro, 'gemini-2.0-flash-exp', 'gemini-2.5-flash', 'gemini-2.5-pro'],
+    freeModels: ['gemini-1.5-flash', 'gemini-1.5-pro', 'gemini-2.0-flash-exp', 'gemini-2.5-flash', 'gemini-2.5-pro'],
     docsUrl: 'https://ai.google.dev',
   },
   {
@@ -64,7 +64,7 @@ export const PROVIDERS: Provider[] = [
     modelsPath: '/models',
     chatPath: '/chat/completions',
     auth: { header: 'Authorization', type: 'bearer' },
-    freeModels: [deepseek-chat, deepseek-reasoner],
+    freeModels: ['deepseek-chat', 'deepseek-reasoner'],
     docsUrl: 'https://platform.deepseek.com',
   },
   {
@@ -77,7 +77,7 @@ export const PROVIDERS: Provider[] = [
     modelsPath: '/v1/models',
     chatPath: '/v1/chat/completions',
     auth: { header: 'Authorization', type: 'bearer' },
-    freeModels: [mistral-tiny, mistral-small-latest, codestral-2501],
+    freeModels: ['mistral-tiny', 'mistral-small-latest', 'codestral-2501'],
     docsUrl: 'https://console.mistral.ai',
   },
   {
@@ -90,7 +90,7 @@ export const PROVIDERS: Provider[] = [
     modelsPath: '/v1/models',
     chatPath: '/v1/chat',
     auth: { header: 'Authorization', type: 'bearer' },
-    freeModels: [command-r, command-r-plus, command-light],
+    freeModels: ['command-r', 'command-r-plus', 'command-light'],
     docsUrl: 'https://dashboard.cohere.com',
   },
   {
@@ -103,7 +103,7 @@ export const PROVIDERS: Provider[] = [
     modelsPath: '/v1/models',
     chatPath: '/v1/chat/completions',
     auth: { header: 'Authorization', type: 'bearer' },
-    freeModels: [grok-beta],
+    freeModels: ['grok-beta'],
     docsUrl: 'https://x.ai',
   },
   {
@@ -155,7 +155,7 @@ export const PROVIDERS: Provider[] = [
     modelsPath: '/models',
     chatPath: '/chat/completions',
     auth: { header: 'Authorization', type: 'bearer' },
-    freeModels: [sonar, sonar-small, sonar-medium],
+    freeModels: ['sonar', 'sonar-small', 'sonar-medium'],
     docsUrl: 'https://www.perplexity.ai',
   },
   {

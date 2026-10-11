@@ -259,7 +259,7 @@ export const PROVIDERS: Provider[] = [
     modelsPath: '/v1/models',
     chatPath: '/v1/chat/completions',
     auth: { header: 'Authorization', type: 'bearer' },
-    freeModels: [meta-llama/'llama-3.3-70b'-Instruct, 'mistralai/Mistral-7B-Instruct-v0.3'],
+    freeModels: ['meta-llama/Llama-3.3-70B-Instruct', 'mistralai/Mistral-7B-Instruct-v0.3'],
     docsUrl: 'https://novita.ai',
   },
   {
@@ -285,7 +285,7 @@ export const PROVIDERS: Provider[] = [
     modelsPath: '/api/paas/v4/models',
     chatPath: '/api/paas/v4/chat/completions',
     auth: { header: 'Authorization', type: 'bearer' },
-    freeModels: [glm-4-flash, glm-4-flash-x, glm-4-air-250414],
+    freeModels: ['glm-4-flash', 'glm-4-flash-x', 'glm-4-air-250414'],
     docsUrl: 'https://open.bigmodel.cn',
     requiresRegion: 'cn',
   },
@@ -409,7 +409,7 @@ export const PROVIDERS: Provider[] = [
     docsUrl: 'https://anyapi.ai',
   },
   {
-    id: 'huggingface',
+    id: 'huggingface-inference',
     name: 'HuggingFace Inference',
     icon: 'huggingface',
     color: '#FFD21E',

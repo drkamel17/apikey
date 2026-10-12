@@ -58,12 +58,37 @@ export const discoverModels = async (provider: Provider, apiKey: string): Promis
     res = await fetch(url, { method: 'GET', headers, signal: AbortSignal.timeout(15000) })
   } catch (err) {
     // Keyless public catalog blocked by the browser (no ACAO header on the
-    // API side): retry the exact same keyless URL through a public CORS
-    // proxy. No API key is ever sent here, so nothing secret leaks.
+    // API side): retry the exact same keyless URL through proxies.
+    // No API key is ever sent here, so nothing secret leaks.
     if (!provider.publicModels) throw err
-    res = await fetch(`https://corsproxy.io/?url=${encodeURIComponent(url)}`, {
-      signal: AbortSignal.timeout(20000),
-    })
+    const attempts = [
+      // 1) our own serverless proxy (same origin, Vercel only)
+      `/api/models-proxy?url=${encodeURIComponent(url)}`,
+      // 2) public fallback (flaky, last resort)
+      `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
+    ]
+    let lastErr: unknown = err
+    for (const target of attempts) {
+      try {
+        const r = await fetch(target, { signal: AbortSignal.timeout(20000) })
+        if (!r.ok) {
+          lastErr = new Error(await getErrorDetail(r))
+          continue
+        }
+        // Reject SPA fallbacks / proxy error pages (HTML instead of JSON).
+        try {
+          await r.clone().json()
+        } catch {
+          lastErr = new Error('Proxy did not return JSON')
+          continue
+        }
+        res = r
+        break
+      } catch (e) {
+        lastErr = e
+      }
+    }
+    if (!res) throw lastErr instanceof Error ? lastErr : new Error(String(lastErr))
   }
 
   if (!res.ok) {

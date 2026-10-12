@@ -8,6 +8,8 @@ import { discoverModels } from '../services/api'
 interface Message {
   role: 'user' | 'assistant'
   content: string
+  model?: string
+  temperature?: number
 }
 
 export const Playground: React.FC = () => {
@@ -80,7 +82,7 @@ export const Playground: React.FC = () => {
         maxTokens,
         onToken: (token: string) => setResponse((prev) => prev + token),
       })
-      setMessages((prev) => [...prev, { role: 'assistant', content: result }])
+      setMessages((prev) => [...prev, { role: 'assistant', content: result, model: selectedModel, temperature }])
       setResponse('')
     } catch (err: any) {
       showToast(`${t('playground.error')}: ${err.message}`, 'error')
@@ -197,23 +199,39 @@ export const Playground: React.FC = () => {
 
             {messages.map((m, i) => (
               <div key={i} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                <div className={`max-w-[80%] px-4 py-2.5 rounded-2xl text-sm whitespace-pre-wrap ${
-                  m.role === 'user' ? 'bg-primary text-primary-foreground rounded-br-sm' : 'bg-muted rounded-bl-sm'
-                }`}>
-                  {m.content}
+                <div className={`max-w-[80%] flex flex-col gap-1 ${m.role === 'user' ? 'items-end' : 'items-start'}`}>
+                  <div className={`px-4 py-2.5 rounded-2xl text-sm whitespace-pre-wrap ${
+                    m.role === 'user' ? 'bg-primary text-primary-foreground rounded-br-sm' : 'bg-muted rounded-bl-sm'
+                  }`}>
+                    {m.content}
+                  </div>
+                  {m.role === 'assistant' && m.model && (
+                    <div className="text-[10px] text-muted-foreground px-1">
+                      {m.model}
+                      {typeof m.temperature === 'number' && (
+                        <span className="ml-1">• temp: {m.temperature.toFixed(1)}</span>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
             ))}
 
             {isLoading && (
               <div className="flex justify-start">
-                <div className="px-4 py-2.5 rounded-2xl rounded-bl-sm bg-muted text-sm">
-                  <span className="inline-flex gap-1">
-                    <span className="animate-bounce">.</span>
-                    <span className="animate-bounce" style={{ animationDelay: '0.1s' }}>.</span>
-                    <span className="animate-bounce" style={{ animationDelay: '0.2s' }}>.</span>
-                  </span>
-                  {response && <span className="whitespace-pre-wrap">{response}</span>}
+                <div className="flex flex-col gap-1 items-start">
+                  <div className="px-4 py-2.5 rounded-2xl rounded-bl-sm bg-muted text-sm">
+                    <span className="inline-flex gap-1">
+                      <span className="animate-bounce">.</span>
+                      <span className="animate-bounce" style={{ animationDelay: '0.1s' }}>.</span>
+                      <span className="animate-bounce" style={{ animationDelay: '0.2s' }}>.</span>
+                    </span>
+                    {response && <span className="whitespace-pre-wrap">{response}</span>}
+                  </div>
+                  <div className="text-[10px] text-muted-foreground px-1">
+                    {selectedModel}
+                    <span className="ml-1">• temp: {temperature.toFixed(1)}</span>
+                  </div>
                 </div>
               </div>
             )}

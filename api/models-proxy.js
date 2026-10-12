@@ -14,6 +14,7 @@ const ALLOWED_HOSTS = new Set([
   'api.router9.com',
   'api.xkiro.com',
   'apihub.agnes-ai.com',
+  'blockrun.ai',
 ]);
 
 export default async function handler(req, res) {

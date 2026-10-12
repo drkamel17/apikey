@@ -108,8 +108,6 @@ export const Playground: React.FC = () => {
     }
   }
 
-  }
-
   const handleCopy = () => {
     const text = response || messages.filter((m) => m.role === 'assistant').pop()?.content || ''
     navigator.clipboard.writeText(text)
@@ -288,4 +286,4 @@ export const Playground: React.FC = () => {
       </div>
     </div>
   )
-
+}

@@ -257,7 +257,7 @@ export const Playground: React.FC = () => {
               />
               <button
                 onClick={handleSend}
-                disabled={!input.trim() || !selectedKey || !selectedModel || isLoading}
+                disabled={!input.trim() || !selectedKey || (!selectedModel) || isLoading}
                 className="px-4 py-2 rounded-lg bg-primary text-primary-foreground disabled:opacity-50 flex items-center gap-2 text-sm"
               >
                 {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}

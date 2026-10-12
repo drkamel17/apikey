@@ -115,6 +115,39 @@ export const Playground: React.FC = () => {
     setTimeout(() => setCopied(false), 2000)
   }
 
+  const loadAutoModels = async () => {
+    setLoadingModels(true)
+    setAvailableModels([])
+    setSelectedModel('')
+    try {
+      for (let i = 0; i < workingKeys.length; i++) {
+        const key = workingKeys[i]
+        try {
+          const provider = getProviderById(key.providerId)
+          if (!provider) continue
+          const models = await discoverModels(provider, key.apiKey)
+          const freeList = provider.freeModels || []
+          let filtered = models
+          if (freeList.length > 0) {
+            filtered = models.filter((m) => {
+              const base = m.id.includes('/') ? m.id.split('/').pop() || m.id : m.id
+              return freeList.some((f) => f === m.id || f === base)
+            })
+          }
+          if (filtered.length > 0) {
+            setSelectedKey(key.id)
+            setAvailableModels(filtered)
+            setSelectedModel(filtered[0].id)
+            return
+          }
+        } catch (e) {}
+      }
+      showToast(t('providers.discoverError') || 'No models found for any key', 'error')
+    } finally {
+      setLoadingModels(false)
+    }
+  }
+
   const handleClear = () => {
     setMessages([])
     setResponse('')
@@ -135,7 +168,7 @@ export const Playground: React.FC = () => {
               onChange={(e) => { setSelectedKey(e.target.value); setSelectedModel('auto'); setAvailableModels([]) }}
               className="w-full px-3 py-2 rounded-lg bg-background border text-sm"
             >
-              <option value="auto">Auto (best API key)</option>
+              <option value="auto">{t(" playground.autoKey)}</option>
               {workingKeys.map((k) => (
                 <option key={k.id} value={k.id}>{k.name}</option>
               ))}

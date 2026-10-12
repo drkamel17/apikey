@@ -80,7 +80,8 @@
     "clear": "مسح",
     "copyResponse": "نسخ الرد",
     "error": "حدث خطأ",
-    "stream": "بث"
+    "stream": "بث",
+    "autoKey": "تلقائي (أفضل مفتاح API)"
   },
   "settings": {
     "title": "الإعدادات",

@@ -80,7 +80,8 @@
     "clear": "Clear",
     "copyResponse": "Copy Response",
     "error": "Error occurred",
-    "stream": "Stream"
+    "stream": "Stream",
+    "autoKey": "Auto (best API key)"
   },
   "settings": {
     "title": "Settings",

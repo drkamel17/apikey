@@ -51,9 +51,20 @@ export const discoverModels = async (provider: Provider, apiKey: string): Promis
   // Public catalogs (llm7, router9, xkiro, agnes): no auth headers at all,
   // so the browser treats it as a CORS-simple request (no preflight) on
   // hosts that don't allow the Authorization header.
-  const headers = provider.publicModels ? {} : buildHeaders(provider, apiKey)
+  const headers: Record<string, string> = provider.publicModels ? {} : buildHeaders(provider, apiKey)
 
-  const res = await fetch(url, { method: 'GET', headers, signal: AbortSignal.timeout(15000) })
+  let res: Response | null = null
+  try {
+    res = await fetch(url, { method: 'GET', headers, signal: AbortSignal.timeout(15000) })
+  } catch (err) {
+    // Keyless public catalog blocked by the browser (no ACAO header on the
+    // API side): retry the exact same keyless URL through a public CORS
+    // proxy. No API key is ever sent here, so nothing secret leaks.
+    if (!provider.publicModels) throw err
+    res = await fetch(`https://corsproxy.io/?url=${encodeURIComponent(url)}`, {
+      signal: AbortSignal.timeout(20000),
+    })
+  }
 
   if (!res.ok) {
     throw new Error(await getErrorDetail(res))

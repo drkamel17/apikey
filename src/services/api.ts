@@ -27,6 +27,31 @@ const substitute = (path: string, vars: Record<string, string>) => {
   return result
 }
 
+// Browsers block https pages from calling http:// endpoints (mixed content),
+// which always breaks local providers (Ollama, FreeLLM) on the hosted page.
+// Fail fast with an actionable message instead of a cryptic network error.
+const assertReachable = (url: string) => {
+  if (typeof window === 'undefined') return
+  if (window.location.protocol !== 'https:' || !url.startsWith('http://')) return
+  let host = ''
+  try {
+    host = new URL(url).hostname
+  } catch {
+    return
+  }
+  if (host === 'localhost' || host === '127.0.0.1' || host === '::1') {
+    throw new Error(
+      'Local endpoint unreachable from this HTTPS page (mixed content blocked). ' +
+      'Run the app locally over HTTP (npm run dev) to use Ollama / FreeLLM. ' +
+      'If already local and it still fails, allow the app origin on the server ' +
+      '(e.g. OLLAMA_ORIGINS for Ollama).'
+    )
+  }
+  throw new Error(
+    'Mixed content blocked: this HTTPS page cannot call an http:// endpoint. Use https:// or run the app locally.'
+  )
+}
+
 export const testApiKey = async (key: APIKey): Promise<TestResult> => {
   const provider = getProviderById(key.providerId)
   if (!provider) return { success: false, message: 'Unknown provider', timestamp: Date.now() }
@@ -48,6 +73,7 @@ export const testApiKey = async (key: APIKey): Promise<TestResult> => {
 
 export const discoverModels = async (provider: Provider, apiKey: string): Promise<DiscoveredModel[]> => {
   const url = `${provider.baseUrl}${substitute(provider.modelsPath, { key: apiKey })}`
+  assertReachable(url)
   // Public catalogs (llm7, router9, xkiro, agnes): no auth headers at all,
   // so the browser treats it as a CORS-simple request (no preflight) on
   // hosts that don't allow the Authorization header.
@@ -139,6 +165,7 @@ export const sendChat = async (
   options: ChatOptions = {}
 ): Promise<string> => {
   const url = `${provider.baseUrl}${substitute(provider.chatPath, { model, key: apiKey })}`
+  assertReachable(url)
   const headers = buildHeaders(provider, apiKey)
 
   const body = buildChatBody(provider.format, model, messages, options)

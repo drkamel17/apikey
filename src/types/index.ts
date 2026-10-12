@@ -41,6 +41,10 @@ export interface Provider {
   docsUrl: string
   isCustom?: boolean
   requiresRegion?: string
+  /** When true, GET modelsPath is public: discoverModels sends no auth
+   *  headers, keeping the request CORS-simple (no preflight) for hosts
+   *  that don't allow the Authorization header (e.g. llm7, router9, xkiro). */
+  publicModels?: boolean
 }
 
 export interface ChatMessage {

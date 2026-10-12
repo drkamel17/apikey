@@ -342,6 +342,7 @@ export const PROVIDERS: Provider[] = [
     auth: { header: 'Authorization', type: 'bearer' },
     freeModels: [],
     docsUrl: 'https://router9.com',
+    publicModels: true,
   },
   {
     id: 'zai',
@@ -379,8 +380,9 @@ export const PROVIDERS: Provider[] = [
     modelsPath: '/v1/models',
     chatPath: '/v1/chat/completions',
     auth: { header: 'Authorization', type: 'bearer' },
-    freeModels: [],
+    freeModels: ['agnes-2.5-flash', 'agnes-1.5-flash', 'agnes-3.0-flash'],
     docsUrl: 'https://agnes-ai.com',
+    publicModels: true,
   },
   {
     id: 'routeway',
@@ -433,6 +435,7 @@ export const PROVIDERS: Provider[] = [
     auth: { header: 'Authorization', type: 'bearer' },
     freeModels: [],
     docsUrl: 'https://llm7.io',
+    publicModels: true,
   },
   {
     id: 'bazaarlink',
@@ -459,6 +462,7 @@ export const PROVIDERS: Provider[] = [
     auth: { header: 'Authorization', type: 'bearer' },
     freeModels: [],
     docsUrl: 'https://xkiro.com',
+    publicModels: true,
   },
   {
     id: 'freellm',
@@ -472,6 +476,19 @@ export const PROVIDERS: Provider[] = [
     auth: { header: 'Authorization', type: 'bearer' },
     freeModels: [],
     docsUrl: 'https://freellmapi.co',
+  },
+  {
+    id: 'github',
+    name: 'GitHub Models',
+    icon: 'github',
+    color: '#24292F',
+    baseUrl: 'https://models.github.ai/inference',
+    format: 'openai',
+    modelsPath: '/models',
+    chatPath: '/chat/completions',
+    auth: { header: 'Authorization', type: 'bearer' },
+    freeModels: [],
+    docsUrl: 'https://docs.github.com/en/github-models',
   },
 ]
 

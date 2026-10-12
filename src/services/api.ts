@@ -48,7 +48,10 @@ export const testApiKey = async (key: APIKey): Promise<TestResult> => {
 
 export const discoverModels = async (provider: Provider, apiKey: string): Promise<DiscoveredModel[]> => {
   const url = `${provider.baseUrl}${substitute(provider.modelsPath, { key: apiKey })}`
-  const headers = buildHeaders(provider, apiKey)
+  // Public catalogs (llm7, router9, xkiro, agnes): no auth headers at all,
+  // so the browser treats it as a CORS-simple request (no preflight) on
+  // hosts that don't allow the Authorization header.
+  const headers = provider.publicModels ? {} : buildHeaders(provider, apiKey)
 
   const res = await fetch(url, { method: 'GET', headers, signal: AbortSignal.timeout(15000) })
 

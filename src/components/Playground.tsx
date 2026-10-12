@@ -51,14 +51,16 @@ export const Playground: React.FC = () => {
     try {
       const models = await discoverModels(provider, key.apiKey)
       const freeList = provider.freeModels || []
-      const filtered = freeList.length > 0 ? models.filter((m) => freeList.includes(m.id)) : models
+      let filtered = models
+      if (freeList.length > 0) {
+        filtered = models.filter((m) => {
+          const base = m.id.includes('/') ? m.id.split('/').pop() || m.id : m.id
+          return freeList.some((f) => f === m.id || f === base)
+        })
+      }
       setAvailableModels(filtered)
       if (filtered.length > 0) {
         setSelectedModel(filtered[0].id)
-      } else if (models.length > 0) {
-        // fallback: keep first discovered if none matched freeList
-        setAvailableModels(models)
-        setSelectedModel(models[0].id)
       }
     } catch (err: any) {
       showToast(`${t('providers.discoverError')}: ${err.message}`, 'error')

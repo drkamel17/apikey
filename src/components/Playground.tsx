@@ -16,7 +16,7 @@ export const Playground: React.FC = () => {
   const { t, keys, sendChatMessage, showToast } = useApp() as any
   const workingKeys = keys.filter((k) => k.status === 'working' || k.status === 'untested')
 
-  const [selectedKey, setSelectedKey] = useState('')
+  const [selectedKey, setSelectedKey] = useState('auto')
   const [selectedModel, setSelectedModel] = useState('')
   const [availableModels, setAvailableModels] = useState<DiscoveredModel[]>([])
   const [loadingModels, setLoadingModels] = useState(false)
@@ -35,15 +35,17 @@ export const Playground: React.FC = () => {
   }, [messages, response])
 
   useEffect(() => {
-    if (workingKeys.length > 0 && !selectedKey) {
-      setSelectedKey(workingKeys[0].id)
+    if (workingKeys.length > 0 && selectedKey === '') {
+      setSelectedKey('auto')
     }
   }, [workingKeys.length, selectedKey])
 
   const loadModels = async () => {
-    if (!selectedKey) return
-    const key = workingKeys.find((k) => k.id === selectedKey)
-    if (!key) return
+    const keysToLoad = selectedKey === 'auto' ? workingKeys : workingKeys.filter((k) => k.id === selectedKey)
+    if (keysToLoad.length === 0) return
+
+    // Load models for the first key (or could merge, but keep simple)
+    const key = keysToLoad[0]
     const provider = getProviderById(key.providerId)
     if (!provider) return
 
@@ -70,7 +72,10 @@ export const Playground: React.FC = () => {
   }
 
   const handleSend = async () => {
-    if (!input.trim() || !selectedKey || !selectedModel || isLoading) return
+    if (!input.trim() || isLoading) return
+    const keysToUse = selectedKey === 'auto' ? workingKeys : workingKeys.filter((k) => k.id === selectedKey)
+    if (keysToUse.length === 0) return
+    if (!selectedModel) return
 
     const userMsg = input.trim()
     const history = [...messages, { role: 'user' as const, content: userMsg }]
@@ -85,18 +90,24 @@ export const Playground: React.FC = () => {
     ]
 
     try {
-      const result = await sendChatMessage(selectedKey, selectedModel, chatMessages, {
+      const keyId = keysToUse[0].id
+      const result = await sendChatMessage(keyId, selectedModel, chatMessages, {
         temperature,
         maxTokens,
         onToken: (token: string) => setResponse((prev) => prev + token),
       })
-      setMessages((prev) => [...prev, { role: 'assistant', content: result, model: (selectedModel === 'auto' ? (workingKeys.find((k)=>k.id===selectedKey)?.models?.[0] || selectedModel) : selectedModel), temperature }])
+      const effectiveModel = selectedModel === 'auto'
+        ? (keysToUse[0].models?.[0] || selectedModel)
+        : selectedModel
+      setMessages((prev) => [...prev, { role: 'assistant', content: result, model: effectiveModel, temperature }])
       setResponse('')
     } catch (err: any) {
       showToast(`${t('playground.error')}: ${err.message}`, 'error')
     } finally {
       setIsLoading(false)
     }
+  }
+
   }
 
   const handleCopy = () => {
@@ -123,10 +134,10 @@ export const Playground: React.FC = () => {
             <h3 className="font-semibold text-sm">{t('playground.selectKey')}</h3>
             <select
               value={selectedKey}
-              onChange={(e) => { setSelectedKey(e.target.value); setSelectedModel(''); setAvailableModels([]) }}
+              onChange={(e) => { setSelectedKey(e.target.value); setSelectedModel('auto'); setAvailableModels([]) }}
               className="w-full px-3 py-2 rounded-lg bg-background border text-sm"
             >
-              <option value="">{t('keys.selectProvider')}</option>
+              <option value="auto">Auto (best API key)</option>
               {workingKeys.map((k) => (
                 <option key={k.id} value={k.id}>{k.name}</option>
               ))}
@@ -257,7 +268,7 @@ export const Playground: React.FC = () => {
               />
               <button
                 onClick={handleSend}
-                disabled={!input.trim() || !selectedKey || (!selectedModel) || isLoading}
+                disabled={!input.trim() || (!selectedModel) || isLoading || (selectedKey === 'auto' ? workingKeys.length === 0 : !selectedKey)}
                 className="px-4 py-2 rounded-lg bg-primary text-primary-foreground disabled:opacity-50 flex items-center gap-2 text-sm"
               >
                 {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}

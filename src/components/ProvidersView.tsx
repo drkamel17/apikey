@@ -6,7 +6,7 @@ import { DiscoveredModel } from '../types'
 
 export const ProvidersView: React.FC = () => {
   const { t, keys, allProviders, deleteCustomProvider, discoverModelsFor } = useApp()
-  const [selectedKey, setSelectedKey] = useState<string | null>(null)
+  const [selectedKey, setSelectedKey] = useState<Record<string, string>>({})
   const [models, setModels] = useState<Record<string, DiscoveredModel[]>>({})
   const [loading, setLoading] = useState<Record<string, boolean>>({})
   const [copied, setCopied] = useState<string | null>(null)
@@ -46,7 +46,8 @@ export const ProvidersView: React.FC = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {allProviders.map((provider) => {
           const keyCount = keys.filter((k) => k.providerId === provider.id).length
-          const providerModels = selectedKey ? (models[selectedKey] || []) : []
+          const selectedKeyId = selectedKey[provider.id] || ''
+          const providerModels = selectedKeyId ? (models[selectedKeyId] || []) : []
           return (
             <div key={provider.id} className="bg-card border rounded-xl p-4 hover:shadow-md transition-shadow">
               <div className="flex items-start justify-between mb-3">
@@ -86,8 +87,8 @@ export const ProvidersView: React.FC = () => {
               <div className="space-y-2">
                 <label className="block text-xs font-medium">{t('providers.discover')}</label>
                 <select
-                  value={selectedKey || ''}
-                  onChange={(e) => setSelectedKey(e.target.value)}
+                  value={selectedKeyId}
+                  onChange={(e) => setSelectedKey((prev) => ({ ...prev, [provider.id]: e.target.value }))}
                   className="w-full px-2 py-1.5 rounded bg-background border text-xs"
                 >
                   <option value="">{t('keys.selectProvider')}</option>
@@ -96,16 +97,16 @@ export const ProvidersView: React.FC = () => {
                   ))}
                 </select>
                 <button
-                  onClick={() => selectedKey && handleDiscover(selectedKey)}
-                  disabled={!selectedKey || (selectedKey && loading[selectedKey])}
+                  onClick={() => selectedKeyId && handleDiscover(selectedKeyId)}
+                  disabled={!selectedKeyId || loading[selectedKeyId]}
                   className="w-full px-3 py-1.5 rounded bg-primary text-primary-foreground hover:opacity-90 disabled:opacity-50 text-xs flex items-center justify-center gap-1"
                 >
-                  <RefreshCw className={`w-3 h-3 ${(selectedKey && loading[selectedKey]) ? 'animate-spin' : ''}`} />
+                  <RefreshCw className={`w-3 h-3 ${selectedKeyId && loading[selectedKeyId] ? 'animate-spin' : ''}`} />
                   {t('providers.refresh')}
                 </button>
               </div>
 
-              {selectedKey && providerModels.length > 0 && (
+              {selectedKeyId && providerModels.length > 0 && (
                 <div className="mt-3 pt-3 border-t">
                   <p className="text-xs font-medium mb-2">{t('providers.models')} ({providerModels.length})</p>
                   <div className="max-h-32 overflow-y-auto space-y-1">

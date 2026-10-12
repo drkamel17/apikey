@@ -90,7 +90,7 @@ export const Playground: React.FC = () => {
         maxTokens,
         onToken: (token: string) => setResponse((prev) => prev + token),
       })
-      setMessages((prev) => [...prev, { role: 'assistant', content: result, model: selectedModel, temperature }])
+      setMessages((prev) => [...prev, { role: 'assistant', content: result, model: (selectedModel === 'auto' ? (workingKeys.find((k)=>k.id===selectedKey)?.models?.[0] || selectedModel) : selectedModel), temperature }])
       setResponse('')
     } catch (err: any) {
       showToast(`${t('playground.error')}: ${err.message}`, 'error')
@@ -149,7 +149,7 @@ export const Playground: React.FC = () => {
               className="w-full px-3 py-2 rounded-lg bg-background border text-sm font-mono"
               disabled={availableModels.length === 0}
             >
-              <option value="">{t('playground.selectModel')}</option>
+              <option value="auto">Auto (best free model)</option>
               {availableModels.map((m) => (
                 <option key={m.id} value={m.id}>{m.id}</option>
               ))}
@@ -237,7 +237,7 @@ export const Playground: React.FC = () => {
                     {response && <span className="whitespace-pre-wrap">{response}</span>}
                   </div>
                   <div className="text-[10px] text-muted-foreground px-1">
-                    {selectedModel}
+                    {selectedModel === 'auto' ? (workingKeys.find((k)=>k.id===selectedKey)?.models?.[0] || 'auto') : selectedModel}
                     <span className="ml-1">• temp: {temperature.toFixed(1)}</span>
                   </div>
                 </div>

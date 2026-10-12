@@ -234,7 +234,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     if (!key) throw new Error(t('playground.noKey'))
     const provider = getProviderById(key.providerId)
     if (!provider) throw new Error(t('common.unknown'))
-    return sendChat(provider, key.apiKey, model, messages, options)
+    const targetModel = model === 'auto' ? (key.models && key.models.length > 0 ? key.models[0] : 'auto') : model
+    return sendChat(provider, key.apiKey, targetModel, messages, options)
   }
 
   const exportData = () => {

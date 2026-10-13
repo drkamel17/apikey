@@ -168,7 +168,7 @@ export const Playground: React.FC = () => {
               onChange={(e) => { setSelectedKey(e.target.value); setSelectedModel('auto'); setAvailableModels([]) }}
               className="w-full px-3 py-2 rounded-lg bg-background border text-sm"
             >
-              <option value="auto">{t(" playground.autoKey)}</option>
+              <option value="auto">{t("playground.autoKey)}</option>
               {workingKeys.map((k) => (
                 <option key={k.id} value={k.id}>{k.name}</option>
               ))}

@@ -10,17 +10,34 @@ interface Props {
 
 const FORMATS: ProviderFormat[] = ['openai', 'anthropic', 'gemini', 'cohere', 'openrouter', 'generic']
 
+type AuthScheme = 'bearer' | 'x-api-key'
+
 export const CustomProviderModal: React.FC<Props> = ({ open, onClose }) => {
-  const { t, addCustomProvider } = useApp()
+  const { t, addCustomProvider, addKey } = useApp()
   const [name, setName] = useState('')
   const [baseUrl, setBaseUrl] = useState('')
+  const [apiKey, setApiKey] = useState('')
+  const [authScheme, setAuthScheme] = useState<AuthScheme>('bearer')
   const [format, setFormat] = useState<ProviderFormat>('openai')
   const [modelsPath, setModelsPath] = useState('/v1/models')
   const [chatPath, setChatPath] = useState('/v1/chat/completions')
-  const [authHeader, setAuthHeader] = useState('Authorization')
-  const [authType, setAuthType] = useState<'bearer' | 'key' | 'custom'>('bearer')
+  const [showAdvanced, setShowAdvanced] = useState(false)
 
   if (!open) return null
+
+  const authHeader = authScheme === 'bearer' ? 'Authorization' : 'x-api-key'
+  const authType: 'bearer' | 'key' = authScheme === 'bearer' ? 'bearer' : 'key'
+
+  const reset = () => {
+    setName('')
+    setBaseUrl('')
+    setApiKey('')
+    setAuthScheme('bearer')
+    setFormat('openai')
+    setModelsPath('/v1/models')
+    setChatPath('/v1/chat/completions')
+    setShowAdvanced(false)
+  }
 
   const handleSubmit = () => {
     if (!name.trim() || !baseUrl.trim()) return
@@ -30,12 +47,14 @@ export const CustomProviderModal: React.FC<Props> = ({ open, onClose }) => {
       format,
       modelsPath: modelsPath.trim() || '/v1/models',
       chatPath: chatPath.trim() || '/v1/chat/completions',
-      auth: { header: authHeader.trim() || 'Authorization', type: authType },
+      auth: { header: authHeader, type: authType },
       color: '#6366F1',
     })
     if (created) {
-      setName('')
-      setBaseUrl('')
+      if (apiKey.trim()) {
+        addKey({ name: name.trim(), apiKey: apiKey.trim(), providerId: created.id })
+      }
+      reset()
       onClose()
     }
   }
@@ -62,47 +81,74 @@ export const CustomProviderModal: React.FC<Props> = ({ open, onClose }) => {
             <input value={name} onChange={(e) => setName(e.target.value)} placeholder="My Local LLM" className={inputCls} autoFocus />
           </div>
 
-          <div>
-            <label className="block text-sm font-medium mb-1">{t('providers.apiUrl')}</label>
-            <input value={baseUrl} onChange={(e) => setBaseUrl(e.target.value)} placeholder="https://api.example.com" className={`${inputCls} font-mono`} dir="ltr" />
-          </div>
+          <div className="rounded-lg border bg-background/50 p-3 space-y-3">
+            <div className="text-xs font-semibold">
+              {t('providers.connection')} : {t('providers.gateway')}
+            </div>
 
-          <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-sm font-medium mb-1">{t('providers.apiFormat')}</label>
-              <select value={format} onChange={(e) => setFormat(e.target.value as ProviderFormat)} className={inputCls}>
-                {FORMATS.map((f) => (
-                  <option key={f} value={f}>{f}</option>
-                ))}
+              <label className="block text-sm font-medium mb-1">{t('providers.credentialType')}</label>
+              <input value={t('providers.staticApiKey')} readOnly className={`${inputCls} text-muted-foreground`} />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-1">{t('providers.gatewayBaseUrl')}</label>
+              <input value={baseUrl} onChange={(e) => setBaseUrl(e.target.value)} placeholder="http://127.0.0.1:31415" className={`${inputCls} font-mono`} dir="ltr" />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-1">{t('providers.gatewayApiKey')}</label>
+              <input value={apiKey} onChange={(e) => setApiKey(e.target.value)} type="password" placeholder="freellmapi-..." className={`${inputCls} font-mono`} dir="ltr" autoComplete="off" />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-1">{t('providers.authScheme')}</label>
+              <select value={authScheme} onChange={(e) => setAuthScheme(e.target.value as AuthScheme)} className={inputCls}>
+                <option value="bearer">bearer</option>
+                <option value="x-api-key">x-api-key</option>
               </select>
             </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">Auth type</label>
-              <select value={authType} onChange={(e) => setAuthType(e.target.value as 'bearer' | 'key' | 'custom')} className={inputCls}>
-                <option value="bearer">Bearer</option>
-                <option value="key">API key header</option>
-                <option value="custom">Custom</option>
-              </select>
-            </div>
           </div>
 
-          <div>
-            <label className="block text-sm font-medium mb-1">Auth header</label>
-            <input value={authHeader} onChange={(e) => setAuthHeader(e.target.value)} placeholder="Authorization" className={`${inputCls} font-mono`} dir="ltr" />
-          </div>
+          <button
+            type="button"
+            onClick={() => setShowAdvanced((v) => !v)}
+            className="text-xs text-muted-foreground hover:text-foreground"
+          >
+            {showAdvanced ? '▾' : '▸'} {t('providers.apiFormat')} / paths
+          </button>
 
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="block text-sm font-medium mb-1">Models path</label>
-              <input value={modelsPath} onChange={(e) => setModelsPath(e.target.value)} placeholder="/v1/models" className={`${inputCls} font-mono`} dir="ltr" />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">Chat path</label>
-              <input value={chatPath} onChange={(e) => setChatPath(e.target.value)} placeholder="/v1/chat/completions" className={`${inputCls} font-mono`} dir="ltr" />
-            </div>
-          </div>
+          {showAdvanced && (
+            <div className="space-y-3">
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-sm font-medium mb-1">{t('providers.apiFormat')}</label>
+                  <select value={format} onChange={(e) => setFormat(e.target.value as ProviderFormat)} className={inputCls}>
+                    {FORMATS.map((f) => (
+                      <option key={f} value={f}>{f}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">Auth header</label>
+                  <input value={authHeader} readOnly className={`${inputCls} font-mono text-muted-foreground`} dir="ltr" />
+                </div>
+              </div>
 
-          <p className="text-xs text-muted-foreground">{t('providers.pathHint')}</p>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-sm font-medium mb-1">Models path</label>
+                  <input value={modelsPath} onChange={(e) => setModelsPath(e.target.value)} placeholder="/v1/models" className={`${inputCls} font-mono`} dir="ltr" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">Chat path</label>
+                  <input value={chatPath} onChange={(e) => setChatPath(e.target.value)} placeholder="/v1/chat/completions" className={`${inputCls} font-mono`} dir="ltr" />
+                </div>
+              </div>
+
+              <p className="text-xs text-muted-foreground">{t('providers.pathHint')}</p>
+            </div>
+          )}
         </div>
 
         <div className="flex justify-end gap-2 mt-6">

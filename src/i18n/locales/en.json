@@ -81,7 +81,9 @@
     "copyResponse": "Copy Response",
     "error": "Error occurred",
     "stream": "Stream",
-    "autoKey": "Auto (best API key)"
+    "autoKey": "Auto (best API key)",
+    "autoModel": "Auto (best model)",
+    "freeOnly": "Free models only"
   },
   "settings": {
     "title": "Settings",

@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react'
+import React, { useState, useRef, useEffect, useMemo } from 'react'
 import { Send, Trash2, Copy, Check, Terminal, Loader2 } from 'lucide-react'
 import { useApp } from '../hooks/useApp'
 import { getProviderById } from '../data/providers'
@@ -19,6 +19,8 @@ export const Playground: React.FC = () => {
   const [selectedKey, setSelectedKey] = useState('auto')
   const [selectedModel, setSelectedModel] = useState('')
   const [availableModels, setAvailableModels] = useState<DiscoveredModel[]>([])
+  const [freeModelIds, setFreeModelIds] = useState<string[]>([])
+  const [freeOnly, setFreeOnly] = useState(false)
   const [loadingModels, setLoadingModels] = useState(false)
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState('')
@@ -40,6 +42,23 @@ export const Playground: React.FC = () => {
     }
   }, [workingKeys.length, selectedKey])
 
+  const isFreeModel = (m: DiscoveredModel, freeList: string[]) => {
+    if (!freeList.length) return false
+    const base = m.id.includes('/') ? m.id.split('/').pop() || m.id : m.id
+    return freeList.some((f) => f === m.id || f === base)
+  }
+
+  const displayModels = useMemo(
+    () => (freeOnly ? availableModels.filter((m) => isFreeModel(m, freeModelIds)) : availableModels),
+    [freeOnly, availableModels, freeModelIds]
+  )
+
+  useEffect(() => {
+    if (displayModels.length > 0 && !displayModels.some((m) => m.id === selectedModel)) {
+      setSelectedModel(displayModels[0].id)
+    }
+  }, [displayModels, selectedModel])
+
   const loadModels = async () => {
     const keysToLoad = selectedKey === 'auto' ? workingKeys : workingKeys.filter((k) => k.id === selectedKey)
     if (keysToLoad.length === 0) return
@@ -52,17 +71,10 @@ export const Playground: React.FC = () => {
     setLoadingModels(true)
     try {
       const models = await discoverModels(provider, key.apiKey)
-      const freeList = provider.freeModels || []
-      let filtered = models
-      if (freeList.length > 0) {
-        filtered = models.filter((m) => {
-          const base = m.id.includes('/') ? m.id.split('/').pop() || m.id : m.id
-          return freeList.some((f) => f === m.id || f === base)
-        })
-      }
-      setAvailableModels(filtered)
-      if (filtered.length > 0) {
-        setSelectedModel(filtered[0].id)
+      setAvailableModels(models)
+      setFreeModelIds(provider.freeModels || [])
+      if (models.length > 0) {
+        setSelectedModel((prev) => (models.some((m) => m.id === prev) ? prev : models[0].id))
       }
     } catch (err: any) {
       showToast(`${t('providers.discoverError')}: ${err.message}`, 'error')
@@ -122,25 +134,20 @@ export const Playground: React.FC = () => {
     try {
       for (let i = 0; i < workingKeys.length; i++) {
         const key = workingKeys[i]
+        const provider = getProviderById(key.providerId)
+        if (!provider) continue
         try {
-          const provider = getProviderById(key.providerId)
-          if (!provider) continue
           const models = await discoverModels(provider, key.apiKey)
-          const freeList = provider.freeModels || []
-          let filtered = models
-          if (freeList.length > 0) {
-            filtered = models.filter((m) => {
-              const base = m.id.includes('/') ? m.id.split('/').pop() || m.id : m.id
-              return freeList.some((f) => f === m.id || f === base)
-            })
-          }
-          if (filtered.length > 0) {
+          if (models.length > 0) {
             setSelectedKey(key.id)
-            setAvailableModels(filtered)
-            setSelectedModel(filtered[0].id)
+            setAvailableModels(models)
+            setFreeModelIds(provider.freeModels || [])
+            setSelectedModel(models[0].id)
             return
           }
-        } catch (e) {}
+        } catch {
+          continue
+        }
       }
       showToast(t('providers.discoverError') || 'No models found for any key', 'error')
     } finally {
@@ -165,7 +172,7 @@ export const Playground: React.FC = () => {
             <h3 className="font-semibold text-sm">{t('playground.selectKey')}</h3>
             <select
               value={selectedKey}
-              onChange={(e) => { setSelectedKey(e.target.value); setSelectedModel('auto'); setAvailableModels([]) }}
+              onChange={(e) => { setSelectedKey(e.target.value); setSelectedModel('auto'); setAvailableModels([]); setFreeModelIds([]) }}
               className="w-full px-3 py-2 rounded-lg bg-background border text-sm"
             >
               <option value="auto">{t("playground.autoKey")}</option>
@@ -189,13 +196,23 @@ export const Playground: React.FC = () => {
               value={selectedModel}
               onChange={(e) => setSelectedModel(e.target.value)}
               className="w-full px-3 py-2 rounded-lg bg-background border text-sm font-mono"
-              disabled={availableModels.length === 0}
+              disabled={displayModels.length === 0}
             >
-              <option value="auto">Auto (best free model)</option>
-              {availableModels.map((m) => (
+              <option value="auto">{t('playground.autoModel')}</option>
+              {displayModels.map((m) => (
                 <option key={m.id} value={m.id}>{m.id}</option>
               ))}
             </select>
+
+            <label className="flex items-center gap-2 text-xs text-muted-foreground cursor-pointer">
+              <input
+                type="checkbox"
+                checked={freeOnly}
+                onChange={(e) => setFreeOnly(e.target.checked)}
+                className="accent-primary"
+              />
+              {t('playground.freeOnly')}
+            </label>
           </div>
 
           <div className="bg-card border rounded-xl p-4 space-y-3">

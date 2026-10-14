@@ -81,7 +81,9 @@
     "copyResponse": "نسخ الرد",
     "error": "حدث خطأ",
     "stream": "بث",
-    "autoKey": "تلقائي (أفضل مفتاح API)"
+    "autoKey": "تلقائي (أفضل مفتاح API)",
+    "autoModel": "تلقائي (أفضل نموذج)",
+    "freeOnly": "النماذج المجانية فقط"
   },
   "settings": {
     "title": "الإعدادات",

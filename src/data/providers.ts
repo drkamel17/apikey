@@ -496,8 +496,20 @@ export const PROVIDERS: Provider[] = [
 export const getBuiltInProviderById = (id: string): Provider | undefined =>
   PROVIDERS.find((p) => p.id === id)
 
-export const getProviderById = (id: string): Provider | undefined =>
-  PROVIDERS.find((p) => p.id === id) ??
-  localStore.getCustomProviders().find((p) => p.id === id)
+export const getProviderById = (id: string): Provider | undefined => {
+  const base =
+    PROVIDERS.find((p) => p.id === id) ??
+    localStore.getCustomProviders().find((p) => p.id === id)
+  if (!base) return undefined
+  const override = localStore.getProviderOverride(id)
+  if (override?.baseUrl) return { ...base, baseUrl: override.baseUrl }
+  return base
+}
+
+export const getAllProviders = (): Provider[] =>
+  [...PROVIDERS, ...localStore.getCustomProviders()].map((p) => {
+    const override = localStore.getProviderOverride(p.id)
+    return override?.baseUrl ? { ...p, baseUrl: override.baseUrl } : p
+  })
 
 export const FREE_PROVIDERS = PROVIDERS.filter((p) => p.freeModels.length > 0)

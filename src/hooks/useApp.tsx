@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback, createContext, useContext } fr
 import { useTranslation } from 'react-i18next'
 import { localStore, DirStatus } from '../services/fs-storage'
 import { Settings, APIKey, TestResult, DiscoveredModel, Provider } from '../types'
-import { PROVIDERS, getProviderById } from '../data/providers'
+import { getProviderById, getAllProviders } from '../data/providers'
 import { testApiKey, discoverModels, sendChat } from '../services/api'
 
 interface Toast {
@@ -40,6 +40,7 @@ interface AppState {
   refreshProviders: () => void
   addCustomProvider: (data: Omit<Provider, 'id' | 'isCustom' | 'freeModels' | 'docsUrl'> & { docsUrl?: string, auth?: { header: string; type: 'bearer' | 'key' | 'custom'; version?: string } }) => Provider | null
   deleteCustomProvider: (id: string) => void
+  setProviderOverride: (id: string, override: { baseUrl?: string }) => void
   // local-folder storage
   ready: boolean
   dirStatus: DirStatus
@@ -60,7 +61,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [activeTab, setActiveTab] = useState<AppState['activeTab']>('dashboard')
   const [toasts, setToasts] = useState<Toast[]>([])
   const [searchQuery, setSearchQuery] = useState('')
-  const [allProviders, setAllProviders] = useState<Provider[]>(() => [...PROVIDERS, ...localStore.getCustomProviders()])
+  const [allProviders, setAllProviders] = useState<Provider[]>(() => getAllProviders())
   const [ready, setReady] = useState(false)
   const [dirStatus, setDirStatus] = useState<DirStatus>('empty')
   const [dirName, setDirName] = useState('')
@@ -68,7 +69,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const syncFromStore = useCallback(() => {
     setKeys(localStore.getKeys())
-    setAllProviders([...PROVIDERS, ...localStore.getCustomProviders()])
+    setAllProviders(getAllProviders())
     setEncryptionEnabled(localStore.isEncryptionEnabled())
     setDirName(localStore.dirName)
     setDirStatus(localStore.status)
@@ -122,7 +123,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   }
 
   const refreshKeys = () => setKeys(localStore.getKeys())
-  const refreshProviders = useCallback(() => setAllProviders([...PROVIDERS, ...localStore.getCustomProviders()]), [])
+  const refreshProviders = useCallback(() => setAllProviders(getAllProviders()), [])
 
   // ---- directory ----
   const pickDirectory = async () => {
@@ -292,6 +293,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     showToast(t('toast.providerDeleted'), 'success')
   }
 
+  const setProviderOverride = (id: string, override: { baseUrl?: string }) => {
+    localStore.setProviderOverride(id, override)
+    refreshProviders()
+  }
+
   const filteredKeys = keys.filter((k) => {
     if (!searchQuery) return true
     const q = searchQuery.toLowerCase()
@@ -309,7 +315,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     activeTab, setActiveTab,
     toasts, showToast, removeToast,
     searchQuery, setSearchQuery,
-    allProviders, refreshProviders, addCustomProvider, deleteCustomProvider,
+    allProviders, refreshProviders, addCustomProvider, deleteCustomProvider, setProviderOverride,
     ready, dirStatus, dirName, pickDirectory, resumeDirectory, forgetDirectory,
     encryptionEnabled, setEncryptionKey,
   }

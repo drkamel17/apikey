@@ -9,12 +9,17 @@ const IDB_STORE = 'handles'
 const HANDLE_KEY = 'dataDirectory'
 const DEFAULT_FILE = 'ai-api-keys.json'
 
+export interface ProviderOverride {
+  baseUrl?: string
+}
+
 export interface DataFile {
   app: 'ai-api-key-manager'
   version: number
   savedAt: number
   keys: APIKey[]
   customProviders: Provider[]
+  providerOverrides?: Record<string, ProviderOverride>
   logs: ActivityLog[]
   encryptionKey: string | null
 }
@@ -27,6 +32,7 @@ const emptyData = (): DataFile => ({
   savedAt: Date.now(),
   keys: [],
   customProviders: [],
+  providerOverrides: {},
   logs: [],
   encryptionKey: null,
 })
@@ -327,6 +333,26 @@ class LocalStore {
     this.onChange?.()
   }
 
+  // ---- provider overrides (editable gateway settings on built-in providers) ----
+  getProviderOverrides(): Record<string, ProviderOverride> {
+    return { ...(this.data.providerOverrides || {}) }
+  }
+
+  getProviderOverride(id: string): ProviderOverride | undefined {
+    return this.data.providerOverrides?.[id]
+  }
+
+  setProviderOverride(id: string, override: ProviderOverride) {
+    this.data.providerOverrides = { ...(this.data.providerOverrides || {}) }
+    const prev = this.data.providerOverrides[id] || {}
+    const next = { ...prev, ...override }
+    if (!next.baseUrl) delete next.baseUrl
+    if (Object.keys(next).length === 0) delete this.data.providerOverrides[id]
+    else this.data.providerOverrides[id] = next
+    this.persist()
+    this.onChange?.()
+  }
+
   // ---- settings (UI prefs, kept in the browser) ----
   getSettings(): Settings {
     return { ...this.settings }
@@ -361,6 +387,7 @@ class LocalStore {
       if (!parsed || typeof parsed !== 'object') return false
       this.data.keys = Array.isArray(parsed.keys) ? parsed.keys : this.data.keys
       this.data.customProviders = Array.isArray(parsed.customProviders) ? parsed.customProviders : this.data.customProviders
+      if (parsed.providerOverrides && typeof parsed.providerOverrides === 'object') this.data.providerOverrides = parsed.providerOverrides
       if (Array.isArray(parsed.logs)) this.data.logs = parsed.logs
       if (parsed.encryptionKey !== undefined) this.data.encryptionKey = parsed.encryptionKey
       this.addLog('Data imported', true)

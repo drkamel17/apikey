@@ -1,6 +1,7 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { X, Plus, Save } from 'lucide-react'
 import { useApp } from '../hooks/useApp'
+import { getProviderById } from '../data/providers'
 
 interface Props {
   open: boolean
@@ -9,22 +10,35 @@ interface Props {
 }
 
 export const AddKeyModal: React.FC<Props> = ({ open, onClose, providerId }) => {
-  const { t, addKey, allProviders } = useApp()
+  const { t, addKey, allProviders, setProviderOverride } = useApp()
   const [name, setName] = useState('')
   const [apiKey, setApiKey] = useState('')
   const [provider, setProvider] = useState(providerId || '')
   const [note, setNote] = useState('')
+  const [gatewayUrl, setGatewayUrl] = useState('')
+
+  const isGateway = provider === 'freellm'
+  const effectiveProvider = provider ? getProviderById(provider) : undefined
+
+  useEffect(() => {
+    if (isGateway) setGatewayUrl(getProviderById('freellm')?.baseUrl || '')
+  }, [isGateway, open])
 
   if (!open) return null
 
   const handleSubmit = () => {
     if (!name.trim() || !apiKey.trim()) return
+    if (isGateway && gatewayUrl.trim() && gatewayUrl.trim() !== effectiveProvider?.baseUrl) {
+      setProviderOverride('freellm', { baseUrl: gatewayUrl.trim() })
+    }
     addKey({ name: name.trim(), apiKey: apiKey.trim(), providerId: provider, note })
     setName('')
     setApiKey('')
     setNote('')
     onClose()
   }
+
+  const inputCls = 'w-full px-3 py-2 rounded-lg bg-background border focus:ring-2 focus:ring-primary outline-none text-sm'
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
@@ -52,17 +66,6 @@ export const AddKeyModal: React.FC<Props> = ({ open, onClose, providerId }) => {
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1">{t('keys.apiKey')}</label>
-            <input
-              type="password"
-              value={apiKey}
-              onChange={(e) => setApiKey(e.target.value)}
-              placeholder="AIza..."
-              className="w-full px-3 py-2 rounded-lg bg-background border focus:ring-2 focus:ring-primary outline-none font-mono text-sm"
-            />
-          </div>
-
-          <div>
             <label className="block text-sm font-medium mb-1">{t('keys.provider')}</label>
             <select
               value={provider}
@@ -75,6 +78,53 @@ export const AddKeyModal: React.FC<Props> = ({ open, onClose, providerId }) => {
               ))}
             </select>
           </div>
+
+          {isGateway ? (
+            <div className="rounded-lg border bg-background/50 p-3 space-y-3">
+              <div className="text-xs font-semibold">
+                {t('providers.connection')} : {t('providers.gateway')}
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1">{t('providers.credentialType')}</label>
+                <input value={t('providers.staticApiKey')} readOnly className={`${inputCls} text-muted-foreground`} />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1">{t('providers.gatewayBaseUrl')}</label>
+                <input value={gatewayUrl} onChange={(e) => setGatewayUrl(e.target.value)} placeholder="http://127.0.0.1:31415" className={`${inputCls} font-mono`} dir="ltr" />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1">{t('providers.gatewayApiKey')}</label>
+                <input
+                  type="password"
+                  value={apiKey}
+                  onChange={(e) => setApiKey(e.target.value)}
+                  placeholder="freellmapi-..."
+                  className={`${inputCls} font-mono`}
+                  dir="ltr"
+                  autoComplete="off"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1">{t('providers.authScheme')}</label>
+                <input value={effectiveProvider?.auth.type || 'bearer'} readOnly className={`${inputCls} text-muted-foreground`} />
+              </div>
+            </div>
+          ) : (
+            <div>
+              <label className="block text-sm font-medium mb-1">{t('keys.apiKey')}</label>
+              <input
+                type="password"
+                value={apiKey}
+                onChange={(e) => setApiKey(e.target.value)}
+                placeholder="AIza..."
+                className="w-full px-3 py-2 rounded-lg bg-background border focus:ring-2 focus:ring-primary outline-none font-mono text-sm"
+              />
+            </div>
+          )}
 
           <div>
             <label className="block text-sm font-medium mb-1">{t('common.note') || 'Note'}</label>

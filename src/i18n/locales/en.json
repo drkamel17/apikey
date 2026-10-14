@@ -83,7 +83,17 @@
     "stream": "Stream",
     "autoKey": "Auto (best API key)",
     "autoModel": "Auto (best model)",
-    "freeOnly": "Free models only"
+    "freeOnly": "Free models only",
+    "traits": {
+      "text": "Text",
+      "code": "Code",
+      "vision": "Vision",
+      "image": "Image",
+      "video": "Video",
+      "audio": "Audio",
+      "embedding": "Embedding",
+      "reasoning": "Reasoning"
+    }
   },
   "settings": {
     "title": "Settings",

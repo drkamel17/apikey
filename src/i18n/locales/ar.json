@@ -83,7 +83,17 @@
     "stream": "بث",
     "autoKey": "تلقائي (أفضل مفتاح API)",
     "autoModel": "تلقائي (أفضل نموذج)",
-    "freeOnly": "النماذج المجانية فقط"
+    "freeOnly": "النماذج المجانية فقط",
+    "traits": {
+      "text": "نص",
+      "code": "كود",
+      "vision": "رؤية",
+      "image": "صورة",
+      "video": "فيديو",
+      "audio": "صوت",
+      "embedding": "تضمين",
+      "reasoning": "استدلال"
+    }
   },
   "settings": {
     "title": "الإعدادات",

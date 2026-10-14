@@ -1,9 +1,33 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react'
-import { Send, Trash2, Copy, Check, Terminal, Loader2 } from 'lucide-react'
+import { Send, Trash2, Copy, Check, Terminal, Loader2, Type, Code2, Eye, Image as ImageIcon, Video, Music, Boxes, Brain } from 'lucide-react'
 import { useApp } from '../hooks/useApp'
 import { getProviderById } from '../data/providers'
 import { DiscoveredModel } from '../types'
 import { discoverModels } from '../services/api'
+import { getModelTraits, ModelTrait } from '../utils/modelTraits'
+import type { LucideIcon } from 'lucide-react'
+
+const TRAIT_ICONS: Record<ModelTrait, LucideIcon> = {
+  text: Type,
+  code: Code2,
+  vision: Eye,
+  image: ImageIcon,
+  video: Video,
+  audio: Music,
+  embedding: Boxes,
+  reasoning: Brain,
+}
+
+const TRAIT_EMOJI: Record<ModelTrait, string> = {
+  text: '💬',
+  code: '💻',
+  vision: '👁️',
+  image: '🖼️',
+  video: '🎬',
+  audio: '🎵',
+  embedding: '🧩',
+  reasoning: '🧠',
+}
 
 interface Message {
   role: 'user' | 'assistant'
@@ -51,6 +75,11 @@ export const Playground: React.FC = () => {
   const displayModels = useMemo(
     () => (freeOnly ? availableModels.filter((m) => isFreeModel(m, freeModelIds)) : availableModels),
     [freeOnly, availableModels, freeModelIds]
+  )
+
+  const selectedTraits = useMemo(
+    () => (selectedModel && selectedModel !== 'auto' ? getModelTraits(selectedModel) : []),
+    [selectedModel]
   )
 
   useEffect(() => {
@@ -200,9 +229,29 @@ export const Playground: React.FC = () => {
             >
               <option value="auto">{t('playground.autoModel')}</option>
               {displayModels.map((m) => (
-                <option key={m.id} value={m.id}>{m.id}</option>
+                <option key={m.id} value={m.id}>
+                  {getModelTraits(m.id).map((tr) => TRAIT_EMOJI[tr]).join('')} {m.id}
+                </option>
               ))}
             </select>
+
+            {selectedTraits.length > 0 && (
+              <div className="flex items-center gap-1.5 flex-wrap">
+                {selectedTraits.map((trait) => {
+                  const Icon = TRAIT_ICONS[trait]
+                  return (
+                    <span
+                      key={trait}
+                      title={t(`playground.traits.${trait}`)}
+                      className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-muted text-muted-foreground text-[10px]"
+                    >
+                      <Icon className="w-3 h-3" />
+                      {t(`playground.traits.${trait}`)}
+                    </span>
+                  )
+                })}
+              </div>
+            )}
 
             <label className="flex items-center gap-2 text-xs text-muted-foreground cursor-pointer">
               <input

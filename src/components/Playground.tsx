@@ -5,6 +5,7 @@ import { getProviderById } from '../data/providers'
 import { DiscoveredModel } from '../types'
 import { discoverModels } from '../services/api'
 import { getModelTraits, ModelTrait } from '../utils/modelTraits'
+import { ModelPicker } from './ModelPicker'
 import type { LucideIcon } from 'lucide-react'
 
 const TRAIT_ICONS: Record<ModelTrait, LucideIcon> = {
@@ -16,17 +17,6 @@ const TRAIT_ICONS: Record<ModelTrait, LucideIcon> = {
   audio: Music,
   embedding: Boxes,
   reasoning: Brain,
-}
-
-const TRAIT_EMOJI: Record<ModelTrait, string> = {
-  text: '💬',
-  code: '💻',
-  vision: '👁️',
-  image: '🖼️',
-  video: '🎬',
-  audio: '🎵',
-  embedding: '🧩',
-  reasoning: '🧠',
 }
 
 interface Message {
@@ -221,19 +211,14 @@ export const Playground: React.FC = () => {
               </button>
             </div>
 
-            <select
+            <ModelPicker
+              models={displayModels}
               value={selectedModel}
-              onChange={(e) => setSelectedModel(e.target.value)}
-              className="w-full px-3 py-2 rounded-lg bg-background border text-sm font-mono"
-              disabled={displayModels.length === 0}
-            >
-              <option value="auto">{t('playground.autoModel')}</option>
-              {displayModels.map((m) => (
-                <option key={m.id} value={m.id}>
-                  {getModelTraits(m.id).map((tr) => TRAIT_EMOJI[tr]).join('')} {m.id}
-                </option>
-              ))}
-            </select>
+              onChange={setSelectedModel}
+              autoLabel={t('playground.autoModel')}
+              searchPlaceholder={t('playground.searchModel')}
+              disabled={displayModels.length === 0 && !freeOnly && availableModels.length === 0}
+            />
 
             {selectedTraits.length > 0 && (
               <div className="flex items-center gap-1.5 flex-wrap">

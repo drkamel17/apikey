@@ -1,5 +1,16 @@
 export type ModelTrait = 'text' | 'code' | 'vision' | 'image' | 'video' | 'audio' | 'embedding' | 'reasoning'
 
+export const TRAIT_EMOJI: Record<ModelTrait, string> = {
+  text: '💬',
+  code: '💻',
+  vision: '👁️',
+  image: '🖼️',
+  video: '🎬',
+  audio: '🎵',
+  embedding: '🧩',
+  reasoning: '🧠',
+}
+
 const TRAIT_KEYWORDS: { trait: ModelTrait; words: string[] }[] = [
   {
     trait: 'embedding',

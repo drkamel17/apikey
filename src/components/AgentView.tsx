@@ -6,6 +6,7 @@ import { DiscoveredModel } from '../types'
 import { discoverModels } from '../services/api'
 import { workspace, WorkspaceStatus } from '../services/workspace'
 import { runAgent, AgentStep } from '../services/agent'
+import { ModelPicker } from './ModelPicker'
 
 export const AgentView: React.FC = () => {
   const { t, keys, sendChatMessage, showToast } = useApp()
@@ -212,17 +213,14 @@ export const AgentView: React.FC = () => {
               {t('providers.discover')}
             </button>
 
-            <select
+            <ModelPicker
+              models={displayModels}
               value={selectedModel}
-              onChange={(e) => setSelectedModel(e.target.value)}
-              className="w-full px-3 py-2 rounded-lg bg-background border text-sm font-mono"
-              disabled={displayModels.length === 0}
-            >
-              <option value="auto">{t('playground.autoModel')}</option>
-              {displayModels.map((m) => (
-                <option key={m.id} value={m.id}>{m.id}</option>
-              ))}
-            </select>
+              onChange={setSelectedModel}
+              autoLabel={t('playground.autoModel')}
+              searchPlaceholder={t('playground.searchModel')}
+              disabled={displayModels.length === 0 && availableModels.length === 0}
+            />
 
             <label className="flex items-center gap-2 text-xs text-muted-foreground cursor-pointer">
               <input

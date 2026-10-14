@@ -85,6 +85,7 @@
     "autoKey": "Auto (best API key)",
     "autoModel": "Auto (best model)",
     "freeOnly": "Free models only",
+    "searchModel": "Search model...",
     "traits": {
       "text": "Text",
       "code": "Code",

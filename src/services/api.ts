@@ -19,6 +19,12 @@ const buildHeaders = (provider: Provider, apiKey: string): Record<string, string
   return headers
 }
 
+// Providers store baseUrl WITHOUT the /v1 suffix, but users often paste the
+// full base URL from provider docs (e.g. "http://127.0.0.1:31415/v1"). Strip a
+// trailing /v1 (and trailing slashes) so paths like "/v1/models" don't double up.
+const normalizeBase = (baseUrl: string) =>
+  baseUrl.trim().replace(/\/+$/, '').replace(/\/v1$/i, '').replace(/\/+$/, '')
+
 const substitute = (path: string, vars: Record<string, string>) => {
   let result = path
   for (const [k, v] of Object.entries(vars)) {
@@ -72,7 +78,7 @@ export const testApiKey = async (key: APIKey): Promise<TestResult> => {
 }
 
 export const discoverModels = async (provider: Provider, apiKey: string): Promise<DiscoveredModel[]> => {
-  const url = `${provider.baseUrl}${substitute(provider.modelsPath, { key: apiKey })}`
+  const url = `${normalizeBase(provider.baseUrl)}${substitute(provider.modelsPath, { key: apiKey })}`
   assertReachable(url)
   // Public catalogs (llm7, router9, xkiro, agnes): no auth headers at all,
   // so the browser treats it as a CORS-simple request (no preflight) on
@@ -164,7 +170,7 @@ export const sendChat = async (
   messages: ChatMessage[],
   options: ChatOptions = {}
 ): Promise<string> => {
-  const url = `${provider.baseUrl}${substitute(provider.chatPath, { model, key: apiKey })}`
+  const url = `${normalizeBase(provider.baseUrl)}${substitute(provider.chatPath, { model, key: apiKey })}`
   assertReachable(url)
   const headers = buildHeaders(provider, apiKey)
 

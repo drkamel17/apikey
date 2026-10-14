@@ -62,7 +62,16 @@
     "generic": "Generic Format",
     "save": "Save Provider",
     "cancel": "Cancel",
-    "pathHint": "Tip: use {model} in the chat path and {key} in paths when the key goes in the URL (e.g. Gemini)."
+    "pathHint": "Tip: use {model} in the chat path and {key} in paths when the key goes in the URL (e.g. Gemini).",
+    "connection": "Connection",
+    "gateway": "Gateway",
+    "gatewayCredentials": "Gateway credentials",
+    "credentialType": "Credential type",
+    "staticApiKey": "Static API key",
+    "gatewayBaseUrl": "Gateway base URL",
+    "gatewayApiKey": "Gateway API key",
+    "authScheme": "Gateway auth scheme",
+    "notSet": "Not set"
   },
   "playground": {
     "title": "Model Playground",

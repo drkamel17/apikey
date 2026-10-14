@@ -84,6 +84,47 @@ export const ProvidersView: React.FC = () => {
                 <span>{provider.freeModels.length} {t('providers.free')}</span>
               </div>
 
+              {provider.id === 'freellm' && (() => {
+                const providerKey = keys.find((k: any) => k.providerId === provider.id)
+                const maskedKey = providerKey
+                  ? '•'.repeat(Math.min(48, Math.max(16, providerKey.apiKey.length)))
+                  : t('providers.notSet')
+                const urlId = `${provider.id}-baseurl`
+                return (
+                  <div className="mb-3 rounded-lg border bg-background/50 p-3 space-y-2">
+                    <div className="text-xs font-semibold">
+                      {t('providers.connection')} : {t('providers.gateway')}
+                    </div>
+                    <div className="text-[11px] font-medium text-muted-foreground">
+                      {t('providers.gatewayCredentials')}
+                    </div>
+                    <dl className="space-y-1.5 text-xs">
+                      <div className="flex items-start justify-between gap-2">
+                        <dt className="text-muted-foreground">{t('providers.credentialType')}</dt>
+                        <dd className="text-right">{t('providers.staticApiKey')}</dd>
+                      </div>
+                      <div className="flex items-start justify-between gap-2">
+                        <dt className="text-muted-foreground">{t('providers.gatewayBaseUrl')}</dt>
+                        <dd className="flex items-center gap-1 font-mono text-right min-w-0">
+                          <span className="truncate">{provider.baseUrl}</span>
+                          <button onClick={() => handleCopy(provider.baseUrl, urlId)} className="p-0.5 hover:bg-muted rounded flex-shrink-0">
+                            {copied === urlId ? <Check className="w-3 h-3 text-emerald-500" /> : <Copy className="w-3 h-3" />}
+                          </button>
+                        </dd>
+                      </div>
+                      <div className="flex items-start justify-between gap-2">
+                        <dt className="text-muted-foreground">{t('providers.gatewayApiKey')}</dt>
+                        <dd className="font-mono text-right truncate max-w-[55%]">{maskedKey}</dd>
+                      </div>
+                      <div className="flex items-start justify-between gap-2">
+                        <dt className="text-muted-foreground">{t('providers.authScheme')}</dt>
+                        <dd className="text-right">{provider.auth.type}</dd>
+                      </div>
+                    </dl>
+                  </div>
+                )
+              })()}
+
               <div className="space-y-2">
                 <label className="block text-xs font-medium">{t('providers.discover')}</label>
                 <select

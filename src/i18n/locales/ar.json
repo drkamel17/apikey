@@ -62,7 +62,16 @@
     "generic": "صيغة عامة",
     "save": "حفظ المورد",
     "cancel": "إلغاء",
-    "pathHint": "تلميح: استخدم {model} في مسار المحادثة و{key} في المسارات عندما يكون المفتاح في الرابط (مثل Gemini)."
+    "pathHint": "تلميح: استخدم {model} في مسار المحادثة و{key} في المسارات عندما يكون المفتاح في الرابط (مثل Gemini).",
+    "connection": "الاتصال",
+    "gateway": "البوابة",
+    "gatewayCredentials": "بيانات اعتماد البوابة",
+    "credentialType": "نوع الاعتماد",
+    "staticApiKey": "مفتاح API ثابت",
+    "gatewayBaseUrl": "الرابط الأساسي للبوابة",
+    "gatewayApiKey": "مفتاح API للبوابة",
+    "authScheme": "مخطط مصادقة البوابة",
+    "notSet": "غير محدد"
   },
   "playground": {
     "title": "ساحة نماذج AI",

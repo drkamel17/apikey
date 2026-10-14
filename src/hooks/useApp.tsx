@@ -29,7 +29,7 @@ interface AppState {
   exportData: () => void
   importData: (json: string) => void
   clearAllData: () => void
-  activeTab: 'dashboard' | 'keys' | 'providers' | 'playground' | 'settings'
+  activeTab: 'dashboard' | 'keys' | 'providers' | 'playground' | 'agent' | 'settings'
   setActiveTab: (tab: any) => void
   toasts: Toast[]
   showToast: (message: string, type?: Toast['type']) => void

@@ -4,6 +4,7 @@
     "dashboard": "لوحة التحكم",
     "keys": "مفاتيح API",
     "playground": "ساحة اللعب",
+    "agent": "الوكيل",
     "settings": "الإعدادات",
     "providers": "الموردون"
   },
@@ -94,6 +95,26 @@
       "embedding": "تضمين",
       "reasoning": "استدلال"
     }
+  },
+  "agent": {
+    "title": "وكيل AI",
+    "subtitle": "اختر مجلداً على جهازك ودع الوكيل يقرأ ملفاته ويعدّلها.",
+    "workspace": "مجلد العمل",
+    "noFolderSelected": "لم يتم اختيار مجلد",
+    "noFolder": "اختر مجلد العمل أولاً",
+    "pickFolder": "اختيار مجلد",
+    "changeFolder": "تغيير المجلد",
+    "folderConnected": "تم الاتصال بالمجلد",
+    "noFolder": "اختر مجلد العمل أولاً",
+    "pickFolder": "اختيار مجلد",
+    "changeFolder": "تغيير المجلد",
+    "folderConnected": "تم ربط المجلد",
+    "noFolderSelected": "لم يتم اختيار مجلد",
+    "taskPlaceholder": "اكتب المهمة للوكيل...",
+    "run": "تشغيل الوكيل",
+    "hint": "صِف المهمة وسيقوم الوكيل بقراءة ملفات المجلد وتعديلها.",
+    "result": "النتيجة",
+    "noFolder": "اختر مجلد العمل أولاً"
   },
   "settings": {
     "title": "الإعدادات",

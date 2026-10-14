@@ -1,11 +1,12 @@
 import React from 'react'
 import { useTranslation } from 'react-i18next'
-import { LayoutDashboard, KeyRound, Server, FlaskConical, Settings, Sparkles, Key } from 'lucide-react'
+import { LayoutDashboard, KeyRound, Server, FlaskConical, Settings, Sparkles, Key, Bot } from 'lucide-react'
 import { useApp, AppProvider } from './hooks/useApp'
 import { Dashboard } from './components/Dashboard'
 import { KeysView } from './components/KeysView'
 import { ProvidersView } from './components/ProvidersView'
 import { Playground } from './components/Playground'
+import { AgentView } from './components/AgentView'
 import { SettingsView } from './components/SettingsView'
 import { ToastContainer } from './components/Toast'
 import { SetupScreen } from './components/SetupScreen'
@@ -18,6 +19,7 @@ const App: React.FC = () => {
     { id: 'keys', label: 'app.keys', icon: KeyRound },
     { id: 'providers', label: 'app.providers', icon: Server },
     { id: 'playground', label: 'app.playground', icon: FlaskConical },
+    { id: 'agent', label: 'app.agent', icon: Bot },
     { id: 'settings', label: 'app.settings', icon: Settings },
   ] as const
 
@@ -77,6 +79,7 @@ const App: React.FC = () => {
         {activeTab === 'keys' && <KeysView />}
         {activeTab === 'providers' && <ProvidersView />}
         {activeTab === 'playground' && <Playground />}
+        {activeTab === 'agent' && <AgentView />}
         {activeTab === 'settings' && <SettingsView />}
       </main>
 

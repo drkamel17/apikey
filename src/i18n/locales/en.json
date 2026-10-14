@@ -4,6 +4,7 @@
     "dashboard": "Dashboard",
     "keys": "API Keys",
     "playground": "Playground",
+    "agent": "Agent",
     "settings": "Settings",
     "providers": "Providers"
   },
@@ -94,6 +95,21 @@
       "embedding": "Embedding",
       "reasoning": "Reasoning"
     }
+  },
+  "agent": {
+    "title": "AI Agent",
+    "subtitle": "Pick a folder on your computer and let the agent read and edit its files.",
+    "workspace": "Workspace folder",
+    "noFolderSelected": "No folder selected",
+    "noFolder": "Select a workspace folder first",
+    "pickFolder": "Choose folder",
+    "changeFolder": "Change folder",
+    "folderConnected": "Folder connected",
+    "taskPlaceholder": "Describe the task for the agent...",
+    "run": "Run agent",
+    "hint": "Describe a task and the agent will inspect and edit files in your folder.",
+    "result": "Result:",
+    "unsupported": "This feature needs a Chromium-based browser (Chrome, Edge, Brave)."
   },
   "settings": {
     "title": "Settings",

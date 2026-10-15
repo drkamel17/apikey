@@ -25,22 +25,22 @@ const buildHeaders = (provider: Provider, apiKey: string): Record<string, string
 const normalizeBase = (baseUrl: string) =>
   baseUrl.trim().replace(/\/+$/, '').replace(/\/v1$/i, '').replace(/\/+$/, '')
 
-// When the app runs locally over HTTP (npm run dev / preview), route calls to a
-// local gateway (http://127.0.0.1:31415) through the dev server's same-origin
-// proxy at /__gateway. This avoids the browser's CORS + mixed-content blocks
-// entirely; the browser only talks to http://localhost:3200.
-const rewriteLocalGateway = (url: string): string => {
+// Providers whose host sends no CORS headers (local gateways, Ollama Cloud,
+// ...) cannot be called from a browser on a different origin. When the app runs
+// locally over HTTP (npm run dev / preview), route those calls through the dev
+// server's same-origin proxy at /__proxy/<absolute-url>. The browser then only
+// talks to http://localhost:3200, so CORS and mixed-content never apply.
+const proxyUrl = (provider: Provider, url: string): string => {
   if (typeof window === 'undefined') return url
+  if (!provider.needsProxy) return url
   if (window.location.protocol !== 'http:') return url
-  let u: URL
   try {
-    u = new URL(url)
+    const u = new URL(url)
+    if (u.host === window.location.host) return url
   } catch {
     return url
   }
-  const isLocal = u.hostname === 'localhost' || u.hostname === '127.0.0.1' || u.hostname === '::1'
-  if (!isLocal || u.host === window.location.host) return url
-  return `${window.location.origin}/__gateway${u.pathname}${u.search}`
+  return `${window.location.origin}/__proxy/${url}`
 }
 
 const substitute = (path: string, vars: Record<string, string>) => {
@@ -98,7 +98,7 @@ export const testApiKey = async (key: APIKey): Promise<TestResult> => {
 export const discoverModels = async (provider: Provider, apiKey: string): Promise<DiscoveredModel[]> => {
   const rawUrl = `${normalizeBase(provider.baseUrl)}${substitute(provider.modelsPath, { key: apiKey })}`
   assertReachable(rawUrl)
-  const url = rewriteLocalGateway(rawUrl)
+  const url = proxyUrl(provider, rawUrl)
   // Public catalogs (llm7, router9, xkiro, agnes): no auth headers at all,
   // so the browser treats it as a CORS-simple request (no preflight) on
   // hosts that don't allow the Authorization header.
@@ -191,7 +191,7 @@ export const sendChat = async (
 ): Promise<string> => {
   const rawUrl = `${normalizeBase(provider.baseUrl)}${substitute(provider.chatPath, { model, key: apiKey })}`
   assertReachable(rawUrl)
-  const url = rewriteLocalGateway(rawUrl)
+  const url = proxyUrl(provider, rawUrl)
   const headers = buildHeaders(provider, apiKey)
 
   const body = buildChatBody(provider.format, model, messages, options)

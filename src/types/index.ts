@@ -45,6 +45,10 @@ export interface Provider {
    *  headers, keeping the request CORS-simple (no preflight) for hosts
    *  that don't allow the Authorization header (e.g. llm7, router9, xkiro). */
   publicModels?: boolean
+  /** This host sends no CORS headers (local gateways, Ollama Cloud, ...), so a
+   *  browser cannot call it cross-origin. When the app runs locally (HTTP),
+   *  requests are routed through the dev server's same-origin /__proxy. */
+  needsProxy?: boolean
 }
 
 export interface ChatMessage {

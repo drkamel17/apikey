@@ -14,6 +14,7 @@ const ALLOWED_HOSTS = new Set([
   'ollama.com',
   'api.septorlabs.com',
   'api.getwaterfall.org',
+  'models.github.ai',
 ])
 
 export const config = {

@@ -506,6 +506,7 @@ export const PROVIDERS: Provider[] = [
     auth: { header: 'Authorization', type: 'bearer' },
     freeModels: [],
     docsUrl: 'https://docs.github.com/en/github-models',
+    needsProxy: true,
   },
   {
     id: 'opentyphoon',

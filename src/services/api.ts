@@ -33,14 +33,24 @@ const normalizeBase = (baseUrl: string) =>
 const proxyUrl = (provider: Provider, url: string): string => {
   if (typeof window === 'undefined') return url
   if (!provider.needsProxy) return url
-  if (window.location.protocol !== 'http:') return url
+  let u: URL
   try {
-    const u = new URL(url)
-    if (u.host === window.location.host) return url
+    u = new URL(url)
   } catch {
     return url
   }
-  return `${window.location.origin}/__proxy/${url}`
+  if (u.host === window.location.host) return url
+  const isLocalHost =
+    u.hostname === 'localhost' || u.hostname === '127.0.0.1' || u.hostname === '::1'
+
+  if (window.location.protocol === 'http:') {
+    // Local dev/preview server: same-origin proxy that can reach any host.
+    return `${window.location.origin}/__proxy/${url}`
+  }
+  // Deployed over HTTPS: a serverless function relays to remote hosts only
+  // (it cannot reach the user's localhost).
+  if (isLocalHost) return url
+  return `${window.location.origin}/api/proxy?url=${encodeURIComponent(url)}`
 }
 
 const substitute = (path: string, vars: Record<string, string>) => {

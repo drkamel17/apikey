@@ -10,7 +10,11 @@
  * is forwarded to the upstream host only (never logged).
  */
 
-const ALLOWED_HOSTS = new Set(['ollama.com'])
+const ALLOWED_HOSTS = new Set([
+  'ollama.com',
+  'api.septorlabs.com',
+  'api.getwaterfall.org',
+])
 
 export const config = {
   api: { bodyParser: false },
